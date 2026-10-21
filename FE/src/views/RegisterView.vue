@@ -7,6 +7,9 @@ import { Separator } from '@/components/ui/separator'
 
 import { register, requestCsrfCookie } from '@/api/axios';
 import { AxiosError } from 'axios';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const data = reactive({
   name: "",
@@ -22,9 +25,11 @@ async function onSubmit() {
   try {
     loading.value = true;
     formError.value = "";
+
     await requestCsrfCookie();
-    const result = await register(data);
-    console.log(result)
+    await register(data);
+    
+    await router.push({name: "home"})
   } catch (e) {
     if (e instanceof AxiosError) {
       formError.value = e.message;

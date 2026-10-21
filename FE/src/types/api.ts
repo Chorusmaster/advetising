@@ -5,6 +5,11 @@ export type RegisterData = {
   password_confirmation: string;
 }
 
+export type LoginData = {
+  email: string;
+  password: string;
+}
+
 export type CreateCampaignData = {
   name: string
   description?: string

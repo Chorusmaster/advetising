@@ -1,12 +1,30 @@
 <script setup lang="ts">
-  import { onMounted } from 'vue';
-  import { RouterView } from 'vue-router';
-  import { useUserStore } from '@/stores/user';
+  import { computed, ref } from 'vue'
+  import { RouterView, useRouter } from 'vue-router';
+  import { useAuthStore } from '@/stores/auth'
+  import { storeToRefs } from 'pinia'
+  import { logout } from './api/axios';
 
-  const { user, isLoading, fetchUser } = useUserStore();
+  const auth = useAuthStore();
+  const router = useRouter();
+  const { user, isAuthentificated } = storeToRefs(auth);
 
-  onMounted(() => {
-    fetchUser()
+  const loading = ref(false);
+
+  const handleLogout = async () => {
+    loading.value = true;
+    await logout();
+    await router.push({name: "login"});
+    loading.value = false;
+  }
+
+  const initials = computed(() => {
+    if (user?.value) {
+      const parts = user.value.name.split(" ");
+      return parts.map((part) => part.slice(0,1).toUpperCase()).join("")
+    } else {
+      return "-"
+    }
   })
 </script>
 
@@ -23,12 +41,12 @@
         <span class="text-lg font-semibold">Advertising Hub</span>
       </div>
 
-      <div class="flex items-center gap-4">
-        <span class="text-sm text-muted-foreground">Marketing workspace</span>
+      <div v-if="isAuthentificated" class="flex items-center gap-4">
+        <button :disabled="loading" @click="handleLogout" class="text-sm text-muted-foreground hover:text-destructive disabled:text-muted-foreground cursor-pointer">Log out</button>
         <div
           class="size-9 rounded-full bg-secondary flex items-center justify-center text-sm font-semibold"
         >
-          {{ user }} - {{ isLoading }}
+          {{ initials }}
         </div>
       </div>
     </nav>
